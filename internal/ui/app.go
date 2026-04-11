@@ -1029,12 +1029,19 @@ func (a *App) resizeTables() {
 	a.rulesTbl.Height = h
 }
 
-// contentHeight returns rows available for a table body.
+// contentHeight returns the number of data rows the table body can show.
+//
+// Actual rendered line budget per view (sections joined with "\n"):
+//
+//	All views:    header(1) + breadcrumb(1) + flash-or-blank(1) + statusbar(1)  = 4
+//	              + border-top(1) + col-header(1) + separator(1) + border-bot(1) = 4
+//	viewTableDetail only: tabs-bar(1) + tabs-border-bottom(1)                   = 2
+//
+// Total fixed overhead: 8 (tables/chain-rules) or 10 (table-detail).
 func (a *App) contentHeight() int {
-	// header(1) + breadcrumb(1) + tabs(1) + statusbar(1) + flash(1) = 5 overhead + header row itself
-	overhead := 6
-	if a.view == viewChainRules {
-		overhead = 7 // extra breadcrumb segment
+	overhead := 8
+	if a.view == viewTableDetail {
+		overhead = 10
 	}
 	h := a.height - overhead
 	if h < 5 {
@@ -1107,7 +1114,11 @@ func (a App) viewBreadcrumb() string {
 			parts = append(parts, label)
 		}
 	}
+	if a.view == viewTableDetail {
+		parts = append(parts, styleBreadcrumbActive.Render(tabNames[a.activeTab]))
+	}
 	if a.view == viewChainRules && a.activeChain != "" {
+		parts = append(parts, styleBreadcrumbActive.Render(tabNames[tabChains]))
 		parts = append(parts, styleBreadcrumbActive.Render(a.activeChain))
 	}
 

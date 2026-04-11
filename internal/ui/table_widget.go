@@ -164,7 +164,9 @@ func (t *TableWidget) View() string {
 		sb.WriteString("\n")
 	}
 
-	return sb.String()
+	// Trim the trailing newline so that lipgloss does not create a phantom
+	// empty row when rendering the content inside a border box.
+	return strings.TrimRight(sb.String(), "\n")
 }
 
 func (t *TableWidget) computeWidths() []int {
