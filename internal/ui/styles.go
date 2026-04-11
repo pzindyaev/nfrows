@@ -110,6 +110,23 @@ var (
 
 	stylePolicyAccept = lipgloss.NewStyle().Foreground(colorSuccess)
 	stylePolicyDrop   = lipgloss.NewStyle().Foreground(colorDanger)
+
+	styleACItem = lipgloss.NewStyle().
+			Foreground(colorSubtext).
+			PaddingLeft(2)
+
+	styleACItemSelected = lipgloss.NewStyle().
+				Background(colorPrimary).
+				Foreground(colorText).
+				Bold(true).
+				PaddingLeft(2)
+
+	styleACBorder = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(colorBorder).
+			Background(colorSurface).
+			PaddingLeft(1).
+			PaddingRight(1)
 )
 
 func familyStyle(family string) lipgloss.Style {

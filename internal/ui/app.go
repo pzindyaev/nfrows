@@ -287,6 +287,10 @@ func (a App) updateModal(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return a.executeModal()
 	case "esc":
+		// Let the form dismiss its autocomplete dropdown first.
+		if a.form.ConsumeEsc() {
+			return a, nil
+		}
 		a.modal = modalNone
 		return a, nil
 	}
@@ -623,7 +627,7 @@ func (a App) handleAdd() (tea.Model, tea.Cmd) {
 	case viewChainRules:
 		a.modal = modalAddRule
 		a.form = NewForm("Add Rule", []FormField{
-			{Label: "Rule", Placeholder: "ip protocol tcp accept", Required: true},
+			{Label: "Rule", Placeholder: "ip protocol tcp accept", Required: true, Autocomplete: true},
 			{Label: "Comment", Placeholder: "optional description"},
 		})
 		a.form.Width = 70
@@ -710,7 +714,7 @@ func (a App) handleEdit() (tea.Model, tea.Cmd) {
 		}
 		a.modal = modalEditRule
 		a.form = NewForm("Edit Rule", []FormField{
-			{Label: "Rule", Value: row[1], Required: true},
+			{Label: "Rule", Value: row[1], Required: true, Autocomplete: true},
 			{Label: "Comment", Value: existingComment, Placeholder: "optional description"},
 		})
 		a.form.Width = 70

@@ -105,9 +105,9 @@ sudo ./nfrows
 | Key | Action |
 |---|---|
 | `enter` | Confirm form |
-| `esc` | Cancel |
-| `tab` / `↓` | Next field |
-| `shift+tab` / `↑` | Previous field |
+| `esc` | Cancel (or dismiss autocomplete dropdown if open) |
+| `tab` / `↓` | Next field (or complete autocomplete suggestion if dropdown is open) |
+| `shift+tab` / `↑` | Previous field (or dismiss autocomplete dropdown if open) |
 | `h` / `l` | Cycle option selector left/right |
 | `y` | Confirm deletion |
 | `n` / `esc` | Cancel deletion |
@@ -150,6 +150,40 @@ Navigate into a table → chain.
 | Delete | `d` → confirm |
 
 Rules are displayed as human-readable text (fetched via `nft -a list chain`), not as JSON handles.
+
+#### Rule autocomplete
+
+The Rule field has context-aware autocomplete. As you type, a dropdown appears below the input with relevant keyword suggestions based on your position in the rule:
+
+```
+Rule: ip protocol tc█
+      ╭──────────────╮
+      │ tcp          │
+      │ tcp sequence │
+      ╰──────────────╯
+```
+
+| Key | Action |
+|---|---|
+| `↑` / `↓` | Navigate suggestions |
+| `tab` | Complete the highlighted suggestion |
+| `esc` | Dismiss dropdown (press again to close the form) |
+
+The autocomplete is position-aware — suggestions change depending on what you have already typed:
+
+| After typing… | Suggestions include… |
+|---|---|
+| *(empty)* | `ip`, `ip6`, `tcp`, `ct`, `meta`, `accept`, `drop`, … |
+| `ip ` | `saddr`, `daddr`, `protocol`, `ttl`, … |
+| `ip protocol ` | `tcp`, `udp`, `icmp`, `sctp`, … |
+| `tcp ` | `sport`, `dport`, `flags`, `window`, … |
+| `ct ` | `state`, `status`, `direction`, `mark`, … |
+| `ct state ` | `new`, `established`, `related`, `invalid`, `untracked` |
+| `meta ` | `iif`, `oif`, `l4proto`, `mark`, `pkttype`, … |
+| `reject ` | `with` |
+| `reject with ` | `tcp reset`, `icmp type port-unreachable`, … |
+| `log ` | `prefix`, `level`, `flags`, `group` |
+| *(after a value)* | Back to top-level — add another match or a verdict |
 
 ### Sets
 
@@ -201,7 +235,8 @@ nfrows/
     └── ui/
         ├── app.go                # Root Bubble Tea model and navigation state machine
         ├── table_widget.go       # Scrollable table renderer with keyboard selection
-        ├── form.go               # Multi-field modal form (text inputs + option selectors)
+        ├── form.go               # Multi-field modal form (text inputs + option selectors + autocomplete)
+        ├── autocomplete.go       # Context-aware nftables rule autocomplete engine
         ├── confirm.go            # Yes/no confirmation dialog
         ├── styles.go             # Lip Gloss colour palette and component styles
         ├── keys.go               # Key binding definitions
