@@ -27,6 +27,7 @@ const (
 	modalFlushTable
 	modalAddChain
 	modalAddBaseChain
+	modalEditChain
 	modalDeleteChain
 	modalFlushChain
 	modalAddRule
@@ -341,6 +342,18 @@ func (a App) executeModal() (tea.Model, tea.Cmd) {
 		return a, cmdOp(func() error {
 			return nft.AddBaseChain(t.Family, t.Name, name, chainType, hook, policy, prio)
 		})
+	case modalEditChain:
+		if td == nil {
+			return a, nil
+		}
+		t := td.Table
+		row, ok := a.chainsTbl.SelectedRow()
+		if !ok {
+			return a, nil
+		}
+		chain := row[1]
+		policy := vals[0]
+		return a, cmdOp(func() error { return nft.SetChainPolicy(t.Family, t.Name, chain, policy) })
 	case modalDeleteChain:
 		if td == nil {
 			return a, nil
@@ -703,6 +716,27 @@ func (a App) handleDelete() (tea.Model, tea.Cmd) {
 }
 
 func (a App) handleEdit() (tea.Model, tea.Cmd) {
+	if a.view == viewTableDetail && a.activeTab == tabChains {
+		row, ok := a.chainsTbl.SelectedRow()
+		if !ok {
+			return a, nil
+		}
+		c := a.findChain(row[1])
+		if c == nil {
+			return a, nil
+		}
+		if c.Hook == "" {
+			a.flashMsg = fmt.Sprintf("Chain %q is a regular chain; only base chains have a policy.", c.Name)
+			a.flashErr = true
+			return a, nil
+		}
+		a.modal = modalEditChain
+		a.form = NewForm(fmt.Sprintf("Edit Chain %q", c.Name), []FormField{
+			{Label: "Policy", Options: []string{"accept", "drop"}, Value: c.Policy, Required: true},
+		})
+		a.form.Width = 50
+		return a, nil
+	}
 	if a.view == viewChainRules {
 		row, ok := a.rulesTbl.SelectedRow()
 		if !ok {
@@ -974,6 +1008,20 @@ func (a *App) rebuildRulesTable() {
 	}
 }
 
+// findChain returns the chain with the given name in the active table, or nil.
+func (a *App) findChain(name string) *nft.Chain {
+	td := a.activeTableData()
+	if td == nil {
+		return nil
+	}
+	for i := range td.Chains {
+		if td.Chains[i].Name == name {
+			return &td.Chains[i]
+		}
+	}
+	return nil
+}
+
 func (a *App) activeTableData() *nft.TableData {
 	if a.activeTableKey == "" {
 		return nil
@@ -1188,6 +1236,7 @@ func (a App) viewStatusBar() string {
 	case viewTableDetail:
 		add("d", "delete")
 		if a.activeTab == tabChains {
+			add("e/i", "edit policy")
 			add("f", "flush chain")
 			add("enter", "open chain")
 		}

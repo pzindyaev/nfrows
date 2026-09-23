@@ -95,7 +95,7 @@ sudo ./nfrows
 |---|---|
 | `a` / `o` | Add new item |
 | `d` | Delete selected item |
-| `e` / `i` | Edit selected rule |
+| `e` / `i` | Edit selected rule, or change the policy of the selected chain |
 | `f` | Flush (remove all rules from table or chain) |
 | `r` | Refresh ruleset from kernel |
 | `q` / `ctrl+c` | Quit (from tables view) |
@@ -133,6 +133,7 @@ Navigate into a table, then the **Chains** tab is shown by default.
 | Action | How |
 |---|---|
 | Add | `a` → name, type (`filter`/`nat`/`route`), hook, policy, priority |
+| Edit policy | `e` / `i` → choose `accept`/`drop` (base chains only) |
 | Delete | `d` → confirm |
 | Flush | `f` → confirm |
 | Open (view rules) | `enter` |

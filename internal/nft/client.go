@@ -127,6 +127,15 @@ func AddBaseChain(family, table, name, chainType, hook, policy string, prio int)
 	return err
 }
 
+// SetChainPolicy changes the default policy of an existing base chain.
+// nft treats "add chain" on an existing chain with only a policy block as an
+// in-place update, leaving type, hook, priority and rules untouched.
+func SetChainPolicy(family, table, name, policy string) error {
+	_, err := run("add", "chain", family, table, name,
+		fmt.Sprintf("{ policy %s ; }", policy))
+	return err
+}
+
 func DeleteChain(family, table, name string) error {
 	_, err := run("delete", "chain", family, table, name)
 	return err

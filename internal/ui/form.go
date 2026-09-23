@@ -15,7 +15,7 @@ type FormField struct {
 	Placeholder  string
 	Value        string
 	Required     bool
-	Options      []string // if non-empty, rendered as a selector
+	Options      []string // if non-empty, rendered as a selector; Value pre-selects a matching option
 	Autocomplete bool     // if true, shows nftables rule autocomplete
 	optionIdx    int
 }
@@ -54,6 +54,13 @@ func NewForm(title string, fields []FormField) Form {
 		inputs[i] = ti
 		if f.Autocomplete {
 			acField = i
+		}
+		// Pre-select the option matching the initial value, if any.
+		for j, opt := range f.Options {
+			if opt == f.Value {
+				fields[i].optionIdx = j
+				break
+			}
 		}
 	}
 	return Form{
